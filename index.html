@@ -121,15 +121,16 @@
 
         textarea {
             width: 100%;
-            height: 250px;
+            height: 280px;
             padding: 10px;
             border: 1px solid var(--border);
             border-radius: 6px;
             background-color: var(--bg);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             resize: vertical;
             box-sizing: border-box;
             font-family: monospace;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -217,16 +218,17 @@
 * Strike Price & Type: ${strike} ${type}
 * Average Entry Price: ${entry}
 
-**Live Market Context & Data:**
-* Spot Price Action: [Enter current market behavior, e.g., falling sharply or taking support]
-* Nearest Key Levels (Spot): [Enter Support/Resistance]
-* India VIX / Implied Volatility: [Enter VIX trend]
-* Open Interest (OI) Trend: [Enter OI data]
-* Current Time: [Enter time]
+**Live Market Context & Data (ACTION REQUIRED VIA MCP):**
+Use your connected MCP broker tools to fetch the real-time data for the following parameters before making your decision:
+1. **Spot Price Action:** Check the live chart and nearest Support/Resistance levels for ${index}.
+2. **Premium Action:** Check the current price and chart behavior for ${strike} ${type} option.
+3. **Volatility:** Check the current India VIX and Implied Volatility (IV) trend.
+4. **Option Chain:** Check the Open Interest (OI) trend and PCR for ${index}.
+5. **Time Risk:** Note the exact current time to assess Theta decay risk.
 
 **IMPORTANT INSTRUCTION:** Provide your final response entirely in the MARATHI language, but keep all the numbers and trading terminology (e.g., Stop Loss, Target, CE, PE, VWAP, Theta, Average) in English.
 
-**Based on the above data, provide your response in the following strict format:**
+**Based on the live data fetched, provide your response in the following strict format:**
 
 1. **FINAL VERDICT:** State clearly "AVERAGE" or "DO NOT AVERAGE (EXIT)". (Keep in mind the severe risks of Theta Decay and IV Crush for an option buyer. Default to 'DO NOT AVERAGE' unless there is a high-probability reversal confirmation at a major level).
 2. **TRADE ACTION PLAN:**
