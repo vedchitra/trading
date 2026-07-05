@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Prompt Generator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --border: #d1d5db;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .flex-row .form-group {
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit { background-color: var(--primary); }
+        .btn-submit:hover { background-color: var(--primary-hover); }
+        
+        .btn-copy { background-color: var(--success); display: none; }
+        .btn-copy:hover { background-color: var(--success-hover); }
+        
+        .btn-reset { background-color: var(--danger); flex: 0.5; }
+        .btn-reset:hover { background-color: var(--danger-hover); }
+
+        .output-container {
+            margin-top: 25px;
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background-color: var(--bg);
+            font-size: 0.9rem;
+            resize: vertical;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Prompt Generator</h1>
+        <h2>Avarage Prompt</h2>
+
+        <form id="promptForm">
+            <div class="flex-row">
+                <div class="form-group">
+                    <label for="indexSelect">Index</label>
+                    <select id="indexSelect" required>
+                        <option value="Nifty 50" selected>Nifty 50</option>
+                        <option value="BankNifty">BankNifty</option>
+                        <option value="Sensex">Sensex</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="expirySelect">Expiry</label>
+                    <select id="expirySelect" required>
+                        <option value="Current Expiry" selected>Current Expiry</option>
+                        <option value="Next Expiry">Next Expiry</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex-row">
+                <div class="form-group">
+                    <label for="strikeInput">Strike Price</label>
+                    <input type="number" id="strikeInput" placeholder="उदा. 24500" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="typeSelect">Type</label>
+                    <select id="typeSelect" required>
+                        <option value="CE" selected>CE</option>
+                        <option value="PE">PE</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="entryInput">Entry Price</label>
+                <input type="number" id="entryInput" step="0.05" placeholder="उदा. 120.50" required>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" id="submitBtn" class="btn-submit">Submit</button>
+                <button type="button" id="copyBtn" class="btn-copy">Copy Prompt</button>
+                <button type="button" id="resetBtn" class="btn-reset">Reset</button>
+            </div>
+        </form>
+
+        <div class="output-container" id="outputContainer">
+            <label>Generated Prompt (Ready to Copy):</label>
+            <textarea id="promptOutput" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('promptForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const outputContainer = document.getElementById('outputContainer');
+        const promptOutput = document.getElementById('promptOutput');
+        
+        const inputs = form.querySelectorAll('input, select');
+
+        function generatePrompt() {
+            const index = document.getElementById('indexSelect').value;
+            const expiry = document.getElementById('expirySelect').value;
+            const strike = document.getElementById('strikeInput').value;
+            const type = document.getElementById('typeSelect').value;
+            const entry = document.getElementById('entryInput').value;
+
+            const promptText = `Act as an objective and expert Options Trading Analyst. I am an option buyer currently holding a loss-making position. I need a strictly data-driven and unbiased decision on whether I should AVERAGE this position or EXIT immediately. Base your decision purely on standard market dynamics, price action, option Greeks, and capital protection rules.
+
+**Current Trade Details:**
+* Index/Stock Name: ${index}
+* Expiry: ${expiry}
+* Strike Price & Type: ${strike} ${type}
+* Average Entry Price: ${entry}
+
+**Live Market Context & Data:**
+* Spot Price Action: [Enter current market behavior, e.g., falling sharply or taking support]
+* Nearest Key Levels (Spot): [Enter Support/Resistance]
+* India VIX / Implied Volatility: [Enter VIX trend]
+* Open Interest (OI) Trend: [Enter OI data]
+* Current Time: [Enter time]
+
+**IMPORTANT INSTRUCTION:** Provide your final response entirely in the MARATHI language, but keep all the numbers and trading terminology (e.g., Stop Loss, Target, CE, PE, VWAP, Theta, Average) in English.
+
+**Based on the above data, provide your response in the following strict format:**
+
+1. **FINAL VERDICT:** State clearly "AVERAGE" or "DO NOT AVERAGE (EXIT)". (Keep in mind the severe risks of Theta Decay and IV Crush for an option buyer. Default to 'DO NOT AVERAGE' unless there is a high-probability reversal confirmation at a major level).
+2. **TRADE ACTION PLAN:**
+   - If DO NOT AVERAGE: Provide the exact immediate Stop Loss (SL) level on the chart or premium to cut the position.
+   - If AVERAGE: Provide the specific zone/price to add quantity, the new strict Stop Loss (SL), and the immediate Target.
+3. **LOGICAL REASONING:** Provide a concise 2-3 sentence justification explaining the verdict. Focus explicitly on why the current Price Action, OI data, and Greeks (Theta/Vega) support your decision.`;
+
+            return promptText;
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            promptOutput.value = generatePrompt();
+            outputContainer.style.display = 'block';
+            
+            submitBtn.style.display = 'none';
+            copyBtn.style.display = 'block';
+            copyBtn.textContent = 'Copy Prompt';
+        });
+
+        copyBtn.addEventListener('click', function() {
+            promptOutput.select();
+            promptOutput.setSelectionRange(0, 99999); 
+            
+            navigator.clipboard.writeText(promptOutput.value).then(() => {
+                copyBtn.textContent = 'Copied! ✔';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy Prompt';
+                }, 2000);
+            }).catch(err => {
+                alert('Copy करण्यात अडचण आली. कृपया मॅन्युअली सिलेक्ट करून कॉपी करा.');
+            });
+        });
+
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                if (copyBtn.style.display === 'block') {
+                    copyBtn.style.display = 'none';
+                    submitBtn.style.display = 'block';
+                    outputContainer.style.display = 'none'; 
+                }
+            });
+        });
+
+        resetBtn.addEventListener('click', function() {
+            form.reset();
+            submitBtn.style.display = 'block';
+            copyBtn.style.display = 'none';
+            outputContainer.style.display = 'none';
+            promptOutput.value = '';
+        });
+    </script>
+</body>
+</html>
